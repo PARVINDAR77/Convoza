@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ==========================================
   # 1. PostgreSQL Database
@@ -158,3 +156,4 @@ volumes:
 networks:
   convoza_network:
     driver: bridge
+

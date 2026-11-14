@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Edge Nginx Reverse Proxy & Load Balancer
   nginx:
@@ -143,3 +141,4 @@ networks:
     driver: bridge
   convoza_internal_net:
     internal: true
+

@@ -1,18 +1,19 @@
 # ==========================================
 # CONVOZA NestJS Backend API Dockerfile
-# Multi-stage production build
 # ==========================================
 
-# Stage 1: Build
 FROM node:20-alpine AS builder
 
 WORKDIR /app
-
 RUN apk add --no-cache libc6-compat openssl
 
 COPY package*.json ./
 COPY packages/ ./packages/
 COPY apps/api/ ./apps/api/
+COPY workers/ ./workers/
+COPY apps/dashboard/package.json ./apps/dashboard/package.json
+COPY apps/website/package.json ./apps/website/package.json
+COPY apps/admin/package.json ./apps/admin/package.json
 
 RUN npm install
 RUN npm run build --workspace=@convoza/shared-types
@@ -23,17 +24,15 @@ WORKDIR /app/apps/api
 RUN npx prisma generate
 RUN npm run build
 
-# Stage 2: Runner
+# Stage 2: Production Runner
 FROM node:20-alpine AS runner
 
 WORKDIR /app
-
 RUN apk add --no-cache openssl curl
 
 ENV NODE_ENV=production
 ENV PORT=4000
 
-# Create non-root system user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nestjs
 
