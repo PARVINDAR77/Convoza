@@ -110,6 +110,9 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.website
     container_name: convoza_website
     restart: unless-stopped
+    environment:
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
     ports:
       - "3000:3000"
     depends_on:
@@ -126,6 +129,9 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.dashboard
     container_name: convoza_dashboard
     restart: unless-stopped
+    environment:
+      PORT: 3001
+      HOSTNAME: "0.0.0.0"
     ports:
       - "3001:3001"
     depends_on:
@@ -142,6 +148,9 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.admin
     container_name: convoza_admin
     restart: unless-stopped
+    environment:
+      PORT: 3002
+      HOSTNAME: "0.0.0.0"
     ports:
       - "3002:3002"
     depends_on:

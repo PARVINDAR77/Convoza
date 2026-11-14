@@ -24,7 +24,7 @@ import {
 export class WhatsAppService {
   private readonly logger = new Logger(WhatsAppService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Validate Phone Number ID and Access Token against Meta Graph API
