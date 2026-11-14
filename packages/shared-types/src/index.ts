@@ -332,6 +332,16 @@ export enum CampaignStatus {
   CANCELLED = 'CANCELLED'
 }
 
+export enum CampaignRecipientStatus {
+  QUEUED = 'QUEUED',
+  SENT = 'SENT',
+  DELIVERED = 'DELIVERED',
+  READ = 'READ',
+  FAILED = 'FAILED',
+  EXCLUDED_NO_CONSENT = 'EXCLUDED_NO_CONSENT',
+  EXCLUDED_OPT_OUT = 'EXCLUDED_OPT_OUT'
+}
+
 export interface Campaign {
   id: string;
   organizationId: string;

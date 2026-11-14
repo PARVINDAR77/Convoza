@@ -144,7 +144,7 @@ async function main() {
   });
 
   // 4. Seed WhatsApp Account & Verified Phone Number
-  const whatsappAccount = await prisma.whatsappAccount.upsert({
+  const whatsappAccount = await prisma.whatsAppAccount.upsert({
     where: {
       organizationId_wabaId: {
         organizationId: demoOrg.id,

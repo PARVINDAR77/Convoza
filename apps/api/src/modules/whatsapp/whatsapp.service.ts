@@ -87,7 +87,7 @@ export class WhatsAppService {
 
     return this.prisma.$transaction(async (tx) => {
       // Upsert WhatsApp Account
-      const account = await tx.whatsappAccount.upsert({
+      const account = await tx.whatsAppAccount.upsert({
         where: {
           organizationId_wabaId: {
             organizationId,
@@ -258,7 +258,7 @@ export class WhatsAppService {
    * Get all connected WhatsApp accounts and phone numbers for organization
    */
   async getAccounts(organizationId: string) {
-    const accounts = await this.prisma.whatsappAccount.findMany({
+    const accounts = await this.prisma.whatsAppAccount.findMany({
       where: { organizationId },
       include: {
         phoneNumbers: true,
@@ -290,7 +290,7 @@ export class WhatsAppService {
    * Sync account status & phone numbers with Meta Cloud API
    */
   async syncAccount(organizationId: string, accountId: string) {
-    const account = await this.prisma.whatsappAccount.findFirst({
+    const account = await this.prisma.whatsAppAccount.findFirst({
       where: { id: accountId, organizationId },
       include: {
         credentials: true,
@@ -351,7 +351,7 @@ export class WhatsAppService {
    * Disconnect WhatsApp account
    */
   async disconnectAccount(organizationId: string, accountId: string) {
-    const account = await this.prisma.whatsappAccount.findFirst({
+    const account = await this.prisma.whatsAppAccount.findFirst({
       where: { id: accountId, organizationId },
     });
 
@@ -359,7 +359,7 @@ export class WhatsAppService {
       throw new NotFoundException('WhatsApp account not found');
     }
 
-    await this.prisma.whatsappAccount.delete({
+    await this.prisma.whatsAppAccount.delete({
       where: { id: accountId },
     });
 

@@ -116,7 +116,7 @@ export class TemplatesService {
     }
 
     // 3. Verify WhatsApp account exists and belongs to organization
-    const account = await this.prisma.whatsappAccount.findFirst({
+    const account = await this.prisma.whatsAppAccount.findFirst({
       where: { id: dto.whatsappAccountId, organizationId },
     });
 
@@ -279,7 +279,7 @@ export class TemplatesService {
    * Sync all templates under the WABA from Meta Cloud API
    */
   async syncTemplates(organizationId: string, whatsappAccountId: string) {
-    const account = await this.prisma.whatsappAccount.findFirst({
+    const account = await this.prisma.whatsAppAccount.findFirst({
       where: { id: whatsappAccountId, organizationId },
       include: { credentials: true },
     });

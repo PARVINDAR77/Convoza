@@ -32,7 +32,7 @@ export class AdminService {
       this.prisma.user.count(),
       this.prisma.organization.count({ where: { isSuspended: false } }),
       this.prisma.subscription.count({ where: { status: SubscriptionStatus.ACTIVE } }),
-      this.prisma.whatsappAccount.count({ where: { status: 'CONNECTED' } }),
+      this.prisma.whatsAppAccount.count({ where: { status: 'CONNECTED' } }),
       this.prisma.phoneNumber.count(),
       this.prisma.message.count({ where: { direction: 'OUTBOUND' } }),
       this.prisma.message.count({
