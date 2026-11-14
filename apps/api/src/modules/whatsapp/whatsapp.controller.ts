@@ -83,3 +83,4 @@ export class WhatsAppController {
     return this.whatsAppService.disconnectAccount(org.id, accountId);
   }
 }
+

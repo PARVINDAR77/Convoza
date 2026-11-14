@@ -51,3 +51,4 @@ export class EmbeddedSignupCallbackDto {
   @IsString()
   phoneNumberId?: string;
 }
+

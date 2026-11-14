@@ -92,3 +92,4 @@ export class TemplatesController {
     return this.templatesService.syncTemplates(org.id, whatsappAccountId);
   }
 }
+

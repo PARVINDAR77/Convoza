@@ -133,3 +133,4 @@ If a deployed version causes unexpected errors:
    docker compose -f docker-compose.production.yml up -d --build --no-deps api
    ```
 3. Re-verify healthcheck endpoint: `curl -f http://localhost:4000/api/v1/health`
+

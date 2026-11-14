@@ -46,3 +46,4 @@ export class InboxReplyDto {
   @IsOptional()
   templateParameters?: Record<string, string>;
 }
+

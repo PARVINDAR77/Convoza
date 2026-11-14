@@ -16,7 +16,7 @@ import {
   Clock,
   Sparkles,
 } from 'lucide-react';
-import { StatCard } from '../../../../packages/ui/src';
+import { StatCard } from '@convoza/ui';
 
 export default function DashboardOverviewPage() {
   const [metrics, setMetrics] = useState({
@@ -308,3 +308,4 @@ export default function DashboardOverviewPage() {
     </div>
   );
 }
+

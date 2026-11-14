@@ -23,3 +23,4 @@ gunzip -c "${TEMP_RESTORE}" | docker exec -i convoza_postgres psql -U convoza_us
 
 rm -f "${TEMP_RESTORE}"
 echo "Database restored successfully!"
+

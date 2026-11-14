@@ -12,7 +12,7 @@ import {
   Flame,
   MessageSquare,
 } from 'lucide-react';
-import { StatCard } from '../../../../packages/ui/src';
+import { StatCard } from '@convoza/ui';
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('7d');
@@ -152,3 +152,4 @@ export default function AnalyticsPage() {
     </div>
   );
 }
+

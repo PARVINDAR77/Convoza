@@ -19,3 +19,4 @@ export const CurrentMembership = createParamDecorator((data: unknown, ctx: Execu
 });
 
 export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);
+

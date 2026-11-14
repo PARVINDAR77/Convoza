@@ -76,3 +76,4 @@ $$\text{SUPER\_ADMIN (100)} > \text{ORG\_OWNER (80)} > \text{ORG\_ADMIN (60)} > 
 - **Rate Limiting:** Nginx restricts API traffic to 100 requests/second per IP address (`burst=50`), and webhook ingestion to 250 requests/second (`burst=200`).
 - **Database Boundary:** PostgreSQL is placed inside the isolated Docker internal network (`convoza_internal_net`) and is never mapped to host ports in production.
 - **Non-Root Execution:** All Docker containers run under dedicated unprivileged runtime users (`nestjs`, `nextjs`, `worker`).
+

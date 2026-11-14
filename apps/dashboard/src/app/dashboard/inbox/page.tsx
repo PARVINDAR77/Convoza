@@ -379,3 +379,4 @@ export default function SharedInboxPage() {
     </div>
   );
 }
+

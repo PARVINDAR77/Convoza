@@ -44,3 +44,4 @@ export class ApiKeysController {
     return this.apiKeysService.revokeApiKey(org.id, id);
   }
 }
+

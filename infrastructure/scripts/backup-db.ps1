@@ -18,3 +18,4 @@ if (Test-Path $BackupFile) {
 } else {
     Write-Error "Backup failed to generate."
 }
+

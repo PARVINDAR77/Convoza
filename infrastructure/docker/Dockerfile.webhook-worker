@@ -41,3 +41,4 @@ COPY --from=builder /app/workers/webhook-worker/package.json ./workers/webhook-w
 USER worker
 
 CMD ["node", "workers/webhook-worker/dist/index.js"]
+

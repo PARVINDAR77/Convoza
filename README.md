@@ -190,3 +190,4 @@ npm run test:k6
 ## 8. License & Commercial Support
 
 CONVOZA is licensed under proprietary commercial terms. For enterprise licensing, custom SLAs, or dedicated tech provider setup, visit [convoza.io](http://localhost:3000) or contact `enterprise@convoza.io`.
+

@@ -19,7 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@convoza/ui": ["../../packages/ui/src"],
+      "@convoza/shared-types": ["../../packages/shared-types/src"],
+      "@convoza/configuration": ["../../packages/configuration/src"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

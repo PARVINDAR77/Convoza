@@ -74,3 +74,4 @@ export class OrganizationsController {
     return this.orgsService.removeMember(id, memberId);
   }
 }
+

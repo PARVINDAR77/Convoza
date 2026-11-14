@@ -28,3 +28,4 @@ echo "[$(date)] Backup completed successfully: ${ENCRYPTED_FILE}"
 # Retention: Delete backups older than 30 days
 find "${BACKUP_DIR}" -type f -name "*.enc" -mtime +30 -delete
 echo "[$(date)] Retention policy applied. Backups older than 30 days cleaned."
+

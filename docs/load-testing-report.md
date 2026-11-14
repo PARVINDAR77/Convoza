@@ -85,3 +85,4 @@ xychart-beta
    *Optimization Applied:* Added composite indexes on `[organizationId, status]` and `[organizationId, direction, createdAt]`, reducing query time from 420ms to 18ms.
 3. **Webhook Ingestion Decoupling:**  
    *Optimization Applied:* Inbound Meta webhook delivery receipts immediately write to `message_status_events` and return `200 OK` in < 40ms, delegating background analytics updates to the worker cluster.
+

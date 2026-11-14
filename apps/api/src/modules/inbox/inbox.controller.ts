@@ -116,3 +116,4 @@ export class InboxController {
     return this.inboxService.addInternalNote(org.id, id, user.id, dto);
   }
 }
+

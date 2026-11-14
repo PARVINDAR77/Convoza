@@ -88,3 +88,4 @@ export class UpdateAutomationDto {
   @IsBoolean()
   isActive?: boolean;
 }
+

@@ -68,3 +68,4 @@ export class AutomationsController {
     return this.automationsService.deleteAutomation(org.id, id);
   }
 }
+

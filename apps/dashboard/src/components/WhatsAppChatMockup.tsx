@@ -99,3 +99,4 @@ export const WhatsAppChatMockup: React.FC<WhatsAppChatMockupProps> = ({
     </div>
   );
 };
+

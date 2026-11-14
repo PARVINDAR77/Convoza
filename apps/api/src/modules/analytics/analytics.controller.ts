@@ -31,3 +31,4 @@ export class AnalyticsController {
     return this.analyticsService.getCampaignsPerformance(org.id);
   }
 }
+

@@ -143,3 +143,4 @@ CONVOZA strictly integrates with the official **Meta WhatsApp Business Platform*
 - **Permanent Access Tokens:** Stored exclusively encrypted using AES-256-GCM.
 - **24-Hour Customer Window:** The platform tracks `customerWindowExpiresAt`. When closed, free-form text messages are programmatically disabled, and the UI forces selection of an approved Meta Template.
 - **Consent Enforcement:** Contacts with `OPTED_OUT` consent status are automatically excluded from marketing broadcasts.
+

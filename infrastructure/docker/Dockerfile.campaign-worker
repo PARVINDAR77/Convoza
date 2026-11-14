@@ -42,3 +42,4 @@ COPY --from=builder /app/workers/campaign-worker/package.json ./workers/campaign
 USER worker
 
 CMD ["node", "workers/campaign-worker/dist/index.js"]
+

@@ -113,3 +113,4 @@ npm run prisma:migrate --workspace=@convoza/api
 # Execute Database Seed Script
 npm run prisma:seed --workspace=@convoza/api
 ```
+

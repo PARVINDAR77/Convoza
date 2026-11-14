@@ -104,3 +104,4 @@ export class ContactsController {
     return this.contactsService.deleteContact(org.id, id);
   }
 }
+

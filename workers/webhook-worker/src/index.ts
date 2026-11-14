@@ -101,3 +101,4 @@ process.on('SIGTERM', () => { isRunning = false; });
 process.on('SIGINT', () => { isRunning = false; });
 
 runWebhookWorker();
+

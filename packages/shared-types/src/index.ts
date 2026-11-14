@@ -560,3 +560,4 @@ export interface SuperAdminDashboardStats {
     deadLetterJobs: number;
   };
 }
+

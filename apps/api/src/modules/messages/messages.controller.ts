@@ -60,3 +60,4 @@ export class MessagesController {
     return this.messagesService.getMessageById(org.id, id);
   }
 }
+

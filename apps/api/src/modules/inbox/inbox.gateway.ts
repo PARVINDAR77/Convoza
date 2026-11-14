@@ -95,3 +95,4 @@ export class InboxGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(`org_${organizationId}`).emit('conversation:update', conversation);
   }
 }
+

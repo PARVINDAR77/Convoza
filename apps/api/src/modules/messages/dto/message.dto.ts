@@ -55,3 +55,4 @@ export class SendIndividualMessageDto {
   @IsString()
   idempotencyKey?: string;
 }
+

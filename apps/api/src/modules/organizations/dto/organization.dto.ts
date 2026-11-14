@@ -30,3 +30,4 @@ export class InviteMemberDto {
   @IsEnum(UserRole)
   role!: UserRole;
 }
+

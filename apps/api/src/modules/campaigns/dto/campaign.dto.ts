@@ -73,3 +73,4 @@ export class UpdateCampaignDto {
   @IsDateString()
   scheduledAt?: string;
 }
+

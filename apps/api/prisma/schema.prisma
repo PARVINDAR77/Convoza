@@ -874,3 +874,4 @@ model SystemSetting {
 
   @@map("system_settings")
 }
+

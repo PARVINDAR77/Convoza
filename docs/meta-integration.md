@@ -100,3 +100,4 @@ CONVOZA computes the HMAC SHA-256 of the raw request body using your `META_APP_S
 When submitting your Meta App for live public onboarding (Tech Provider role), request:
 1. **`whatsapp_business_management`**: Provide a screencast of the CONVOZA Template Builder and Phone Numbers dashboard showing asset synchronization.
 2. **`whatsapp_business_messaging`**: Provide a screencast of the Shared Team Inbox and Campaign Wizard dispatching messages to test numbers.
+

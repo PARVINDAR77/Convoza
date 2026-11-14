@@ -169,3 +169,4 @@ All API endpoints return a standardized JSON envelope:
 | `PATCH` | `/admin/organizations/:id/restore` | Restore suspended tenant to active status |
 | `GET` | `/admin/users` | Directory of all users across tenants |
 | `GET` | `/admin/audit-logs` | Platform-wide security audit trail |
+

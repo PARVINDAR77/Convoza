@@ -38,3 +38,4 @@ export class VerifyPaymentDto {
   @IsEnum(BillingInterval)
   interval!: BillingInterval;
 }
+
