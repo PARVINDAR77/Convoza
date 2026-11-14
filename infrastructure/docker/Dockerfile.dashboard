@@ -1,0 +1,40 @@
+# ==========================================
+# CONVOZA Customer Dashboard Dockerfile
+# ==========================================
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+RUN apk add --no-cache libc6-compat
+
+COPY package*.json ./
+COPY packages/ ./packages/
+COPY apps/dashboard/ ./apps/dashboard/
+
+RUN npm install
+RUN npm run build --workspace=@convoza/shared-types
+RUN npm run build --workspace=@convoza/configuration
+RUN npm run build --workspace=@convoza/validation
+RUN npm run build --workspace=@convoza/ui
+
+WORKDIR /app/apps/dashboard
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/apps/dashboard/.next/standalone ./
+COPY --from=builder /app/apps/dashboard/.next/static ./apps/dashboard/.next/static
+COPY --from=builder /app/apps/dashboard/public ./apps/dashboard/public
+
+USER nextjs
+
+EXPOSE 3001
+
+CMD ["node", "apps/dashboard/server.js"]

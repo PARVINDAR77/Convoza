@@ -1,0 +1,160 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. PostgreSQL Database
+  # ==========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: convoza_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: convoza_user
+      POSTGRES_PASSWORD: convoza_secure_password_2026
+      POSTGRES_DB: convoza_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U convoza_user -d convoza_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - convoza_network
+
+  # ==========================================
+  # 2. NestJS Backend REST API
+  # ==========================================
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.api
+    container_name: convoza_api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      DATABASE_URL: "postgresql://convoza_user:convoza_secure_password_2026@postgres:5432/convoza_db?schema=public&connection_limit=25"
+      JWT_SECRET: super-secret-convoza-jwt-access-token-key-2026
+      CREDENTIALS_ENCRYPTION_KEY: convoza-super-secret-master-key-32b
+      META_WEBHOOK_VERIFY_TOKEN: convoza_meta_verify_token_secure_2026
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - convoza_network
+
+  # ==========================================
+  # 3. Message Worker (Outbox Queue)
+  # ==========================================
+  message-worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.message-worker
+    container_name: convoza_message_worker
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: "postgresql://convoza_user:convoza_secure_password_2026@postgres:5432/convoza_db?schema=public&connection_limit=10"
+      CREDENTIALS_ENCRYPTION_KEY: convoza-super-secret-master-key-32b
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - convoza_network
+
+  # ==========================================
+  # 4. Campaign Worker (Bulk Batch Dispatcher)
+  # ==========================================
+  campaign-worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.campaign-worker
+    container_name: convoza_campaign_worker
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: "postgresql://convoza_user:convoza_secure_password_2026@postgres:5432/convoza_db?schema=public&connection_limit=10"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - convoza_network
+
+  # ==========================================
+  # 5. Webhook Ingestion Worker
+  # ==========================================
+  webhook-worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.webhook-worker
+    container_name: convoza_webhook_worker
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: "postgresql://convoza_user:convoza_secure_password_2026@postgres:5432/convoza_db?schema=public&connection_limit=10"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - convoza_network
+
+  # ==========================================
+  # 6. Public Marketing Website
+  # ==========================================
+  website:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.website
+    container_name: convoza_website
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - convoza_network
+
+  # ==========================================
+  # 7. Customer Dashboard
+  # ==========================================
+  dashboard:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.dashboard
+    container_name: convoza_dashboard
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+    networks:
+      - convoza_network
+
+  # ==========================================
+  # 8. Super Admin Console
+  # ==========================================
+  admin:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.admin
+    container_name: convoza_admin
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    depends_on:
+      - api
+    networks:
+      - convoza_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  convoza_network:
+    driver: bridge

@@ -1,0 +1,876 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// 1. Authentication & Multi-Tenancy
+// ==========================================
+
+enum UserRole {
+  SUPER_ADMIN
+  ORG_OWNER
+  ORG_ADMIN
+  MANAGER
+  AGENT
+  VIEWER
+}
+
+model User {
+  id               String       @id @default(uuid())
+  email            String       @unique
+  passwordHash     String
+  name             String
+  phone            String?
+  avatarUrl        String?
+  isSuperAdmin     Boolean      @default(false)
+  twoFactorEnabled Boolean      @default(false)
+  twoFactorSecret  String?
+  isActive         Boolean      @default(true)
+  emailVerified    Boolean      @default(false)
+  emailVerifyToken String?
+  resetToken       String?
+  resetTokenExp    DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  memberships      Membership[]
+  sessions         Session[]
+  assignedConversations Conversation[] @relation("AssignedAgent")
+  internalNotes    InternalNote[]
+  auditLogs        AuditLog[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String    @id @default(uuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String    @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Organization {
+  id                String       @id @default(uuid())
+  name              String
+  slug              String       @unique
+  logoUrl           String?
+  isSuspended       Boolean      @default(false)
+  suspensionReason  String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  memberships       Membership[]
+  invitations       Invitation[]
+  subscription      Subscription?
+  usageRecords      UsageRecord[]
+  invoices          Invoice[]
+  payments          Payment[]
+  whatsAppAccounts  WhatsAppAccount[]
+  phoneNumbers      PhoneNumber[]
+  contacts          Contact[]
+  contactLists      ContactList[]
+  tags              Tag[]
+  templates         Template[]
+  campaigns         Campaign[]
+  messages          Message[]
+  conversations     Conversation[]
+  automations       AutomationRule[]
+  apiKeys           ApiKey[]
+  outboundWebhooks  OutboundWebhook[]
+  auditLogs         AuditLog[]
+  outboxEvents      OutboxEvent[]
+
+  @@map("organizations")
+}
+
+model Membership {
+  id             String       @id @default(uuid())
+  organizationId String
+  userId         String
+  role           UserRole     @default(AGENT)
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("memberships")
+}
+
+model Invitation {
+  id             String       @id @default(uuid())
+  organizationId String
+  email          String
+  role           UserRole     @default(AGENT)
+  token          String       @unique
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([email])
+  @@map("invitations")
+}
+
+// ==========================================
+// 2. Subscriptions & Billing
+// ==========================================
+
+enum BillingPlanTier {
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+model Plan {
+  id                   String          @id @default(uuid())
+  tier                 BillingPlanTier @unique
+  name                 String
+  description          String
+  priceMonthly         Int             // In cents/paise
+  priceYearly          Int             // In cents/paise
+  maxWhatsAppAccounts  Int             @default(1)
+  maxUsers             Int             @default(5)
+  contactAllowance     Int             @default(1000)
+  campaignMonthlyLimit Int             @default(5000)
+  hasApiAccess         Boolean         @default(false)
+  hasSharedInbox       Boolean         @default(true)
+  hasAutomations       Boolean         @default(false)
+  hasAdvancedAnalytics Boolean         @default(false)
+  storageMbAllowance   Int             @default(1000)
+  isActive             Boolean         @default(true)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  subscriptions        Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                     String             @id @default(uuid())
+  organizationId         String             @unique
+  planId                 String
+  status                 SubscriptionStatus @default(ACTIVE)
+  interval               BillingInterval    @default(MONTHLY)
+  currentPeriodStart     DateTime           @default(now())
+  currentPeriodEnd       DateTime
+  cancelAtPeriodEnd      Boolean            @default(false)
+  razorpaySubscriptionId String?
+  razorpayCustomerId     String?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  organization           Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan                   Plan               @relation(fields: [planId], references: [id])
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id             String       @id @default(uuid())
+  organizationId String
+  amount         Int
+  currency       String       @default("INR")
+  status         String       // SUCCESS, PENDING, FAILED
+  provider       String       @default("RAZORPAY")
+  transactionId  String       @unique
+  razorpayOrderId String?
+  razorpayPaymentId String?
+  rawPayload     Json?
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("payments")
+}
+
+model Invoice {
+  id             String       @id @default(uuid())
+  organizationId String
+  amount         Int
+  currency       String       @default("INR")
+  status         String       // PAID, PENDING, VOID
+  invoiceNumber  String       @unique
+  invoicePdfUrl  String?
+  paidAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("invoices")
+}
+
+model UsageRecord {
+  id             String       @id @default(uuid())
+  organizationId String
+  metric         String       // MESSAGES_SENT, CONTACTS_STORED, CAMPAIGNS_RUN
+  count          Int          @default(0)
+  periodMonth    Int
+  periodYear     Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, metric, periodMonth, periodYear])
+  @@index([organizationId])
+  @@map("usage_records")
+}
+
+// ==========================================
+// 3. WhatsApp Integration
+// ==========================================
+
+enum WhatsAppAccountStatus {
+  CONNECTED
+  PENDING_VERIFICATION
+  DISCONNECTED
+  RESTRICTED
+}
+
+enum OnboardingType {
+  EMBEDDED_SIGNUP
+  MANUAL
+}
+
+enum QualityRating {
+  GREEN
+  YELLOW
+  RED
+  UNKNOWN
+}
+
+enum MessagingTier {
+  TIER_50
+  TIER_250
+  TIER_1K
+  TIER_10K
+  TIER_100K
+  TIER_UNLIMITED
+}
+
+model WhatsAppAccount {
+  id                 String                @id @default(uuid())
+  organizationId     String
+  wabaId             String
+  name               String
+  onboardingType     OnboardingType        @default(MANUAL)
+  status             WhatsAppAccountStatus @default(CONNECTED)
+  webhookSubscribed  Boolean               @default(true)
+  webhookSubscribedAt DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  organization       Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  credentials        IntegrationCredential?
+  phoneNumbers       PhoneNumber[]
+  templates          Template[]
+
+  @@unique([organizationId, wabaId])
+  @@index([organizationId])
+  @@map("whatsapp_accounts")
+}
+
+model IntegrationCredential {
+  id                 String          @id @default(uuid())
+  whatsappAccountId  String          @unique
+  encryptedToken     String          // AES-256-GCM encrypted access token
+  tokenExpiresAt     DateTime?
+  metaAppId          String?
+  systemUserId       String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  whatsappAccount    WhatsAppAccount @relation(fields: [whatsappAccountId], references: [id], onDelete: Cascade)
+
+  @@map("integration_credentials")
+}
+
+model PhoneNumber {
+  id                  String          @id @default(uuid())
+  organizationId      String
+  whatsappAccountId   String
+  phoneNumberId       String          @unique
+  displayPhoneNumber  String
+  verifiedName        String
+  qualityRating       QualityRating   @default(GREEN)
+  messagingLimitTier  MessagingTier   @default(TIER_1K)
+  codeVerificationStatus String       @default("VERIFIED")
+  isDefault           Boolean         @default(false)
+  lastSyncedAt        DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  organization        Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  whatsappAccount     WhatsAppAccount @relation(fields: [whatsappAccountId], references: [id], onDelete: Cascade)
+  messages            Message[]
+  conversations       Conversation[]
+  campaigns           Campaign[]
+
+  @@index([organizationId])
+  @@index([phoneNumberId])
+  @@map("phone_numbers")
+}
+
+// ==========================================
+// 4. Contacts & Lists
+// ==========================================
+
+enum ConsentStatus {
+  OPTED_IN
+  OPTED_OUT
+  PENDING
+}
+
+enum ConsentSource {
+  IMPORT
+  WEBSITE_FORM
+  WHATSAPP_INBOUND
+  API
+  CHECKOUT
+}
+
+model Contact {
+  id               String              @id @default(uuid())
+  organizationId   String
+  phone            String              // E.164 format
+  name             String?
+  email            String?
+  customFields     Json?               @default("{}")
+  consentStatus    ConsentStatus       @default(OPTED_IN)
+  consentSource    ConsentSource       @default(IMPORT)
+  consentTimestamp DateTime            @default(now())
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  organization     Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  tags             ContactTag[]
+  listMemberships  ContactListMember[]
+  consentRecords   ConsentRecord[]
+  messages         Message[]
+  conversations    Conversation[]
+  campaignRecipients CampaignRecipient[]
+
+  @@unique([organizationId, phone])
+  @@index([organizationId])
+  @@index([phone])
+  @@map("contacts")
+}
+
+model Tag {
+  id             String       @id @default(uuid())
+  organizationId String
+  name           String
+  color          String?      @default("#10B981")
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contacts       ContactTag[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("tags")
+}
+
+model ContactTag {
+  contactId String
+  tagId     String
+
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, tagId])
+  @@map("contact_tags")
+}
+
+model ContactList {
+  id             String              @id @default(uuid())
+  organizationId String
+  name           String
+  description    String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members        ContactListMember[]
+
+  @@index([organizationId])
+  @@map("contact_lists")
+}
+
+model ContactListMember {
+  contactListId String
+  contactId     String
+  addedAt       DateTime    @default(now())
+
+  contactList   ContactList @relation(fields: [contactListId], references: [id], onDelete: Cascade)
+  contact       Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@id([contactListId, contactId])
+  @@map("contact_list_members")
+}
+
+model ConsentRecord {
+  id             String        @id @default(uuid())
+  contactId      String
+  status         ConsentStatus
+  source         ConsentSource
+  ipAddress      String?
+  userAgent      String?
+  notes          String?
+  recordedAt     DateTime      @default(now())
+
+  contact        Contact       @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@map("consent_records")
+}
+
+// ==========================================
+// 5. WhatsApp Templates
+// ==========================================
+
+enum TemplateCategory {
+  MARKETING
+  UTILITY
+  AUTHENTICATION
+}
+
+enum TemplateStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  PAUSED
+  DISABLED
+}
+
+model Template {
+  id                String           @id @default(uuid())
+  organizationId    String
+  whatsappAccountId String
+  name              String
+  language          String           @default("en_US")
+  category          TemplateCategory @default(MARKETING)
+  status            TemplateStatus   @default(DRAFT)
+  metaTemplateId    String?
+  rejectionReason   String?
+  components        Json             // Header, Body, Footer, Buttons
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  organization      Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  whatsappAccount   WhatsAppAccount  @relation(fields: [whatsappAccountId], references: [id], onDelete: Cascade)
+  campaigns         Campaign[]
+
+  @@unique([organizationId, name, language])
+  @@index([organizationId])
+  @@map("templates")
+}
+
+// ==========================================
+// 6. Messaging & Shared Inbox
+// ==========================================
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+  TEMPLATE
+  INTERACTIVE
+}
+
+enum MessageStatus {
+  QUEUED
+  SENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum ConversationStatus {
+  OPEN
+  RESOLVED
+  SNOOZED
+}
+
+model Conversation {
+  id                     String             @id @default(uuid())
+  organizationId         String
+  phoneNumberId          String
+  contactId              String
+  status                 ConversationStatus @default(OPEN)
+  assignedToUserId       String?
+  unreadCount            Int                @default(0)
+  lastMessageAt          DateTime?          @default(now())
+  lastMessagePreview     String?
+  customerWindowExpiresAt DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  organization           Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  phoneNumber            PhoneNumber        @relation(fields: [phoneNumberId], references: [phoneNumberId], onDelete: Cascade)
+  contact                Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  assignedAgent          User?              @relation("AssignedAgent", fields: [assignedToUserId], references: [id])
+  messages               Message[]
+  notes                  InternalNote[]
+
+  @@unique([organizationId, phoneNumberId, contactId])
+  @@index([organizationId])
+  @@index([assignedToUserId])
+  @@index([status])
+  @@map("conversations")
+}
+
+model InternalNote {
+  id             String       @id @default(uuid())
+  conversationId String
+  userId         String
+  content        String
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("internal_notes")
+}
+
+model Message {
+  id                 String           @id @default(uuid())
+  organizationId     String
+  phoneNumberId      String
+  contactId          String
+  conversationId     String
+  direction          MessageDirection
+  type               MessageType      @default(TEXT)
+  status             MessageStatus    @default(QUEUED)
+  wamid              String?          @unique // Meta WhatsApp message id
+  body               String?
+  mediaUrl           String?
+  mediaType          String?
+  templateId         String?
+  templateParameters Json?
+  errorMessage       String?
+  errorCode          String?
+  idempotencyKey     String?          @unique
+  sentAt             DateTime?
+  deliveredAt        DateTime?
+  readAt             DateTime?
+  createdAt          DateTime         @default(now())
+
+  organization       Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  phoneNumber        PhoneNumber      @relation(fields: [phoneNumberId], references: [phoneNumberId], onDelete: Cascade)
+  contact            Contact          @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  conversation       Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  statusEvents       MessageStatusEvent[]
+
+  @@index([organizationId])
+  @@index([conversationId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model MessageStatusEvent {
+  id         String        @id @default(uuid())
+  messageId  String
+  status     MessageStatus
+  timestamp  DateTime      @default(now())
+  rawPayload Json?
+
+  message    Message       @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@map("message_status_events")
+}
+
+// ==========================================
+// 7. Campaigns & Bulk Messaging
+// ==========================================
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  PROCESSING
+  PAUSED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model Campaign {
+  id               String              @id @default(uuid())
+  organizationId   String
+  phoneNumberId    String
+  templateId       String
+  name             String
+  status           CampaignStatus      @default(DRAFT)
+  scheduledAt      DateTime?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  totalRecipients  Int                 @default(0)
+  queuedCount      Int                 @default(0)
+  sentCount        Int                 @default(0)
+  deliveredCount   Int                 @default(0)
+  readCount        Int                 @default(0)
+  failedCount      Int                 @default(0)
+  repliedCount     Int                 @default(0)
+  variableMapping  Json?               @default("{}")
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  organization     Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  phoneNumber      PhoneNumber         @relation(fields: [phoneNumberId], references: [phoneNumberId], onDelete: Cascade)
+  template         Template            @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  recipients       CampaignRecipient[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@map("campaigns")
+}
+
+enum CampaignRecipientStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  EXCLUDED_NO_CONSENT
+  EXCLUDED_OPT_OUT
+}
+
+model CampaignRecipient {
+  id             String                  @id @default(uuid())
+  campaignId     String
+  contactId      String
+  status         CampaignRecipientStatus @default(QUEUED)
+  messageId      String?
+  errorMessage   String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  campaign       Campaign                @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contact        Contact                 @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, contactId])
+  @@index([campaignId])
+  @@map("campaign_recipients")
+}
+
+// ==========================================
+// 8. Automation Rules
+// ==========================================
+
+enum AutomationTrigger {
+  INCOMING_MESSAGE
+  KEYWORD_DETECTED
+  NEW_CONTACT
+  CAMPAIGN_REPLY
+  CONVERSATION_ASSIGNED
+}
+
+model AutomationRule {
+  id             String             @id @default(uuid())
+  organizationId String
+  name           String
+  description    String?
+  trigger        AutomationTrigger
+  conditions     Json               // List of conditions
+  actions        Json               // List of actions to execute
+  isActive       Boolean            @default(true)
+  executionCount Int                @default(0)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  executions     AutomationExecution[]
+
+  @@index([organizationId])
+  @@map("automation_rules")
+}
+
+model AutomationExecution {
+  id               String         @id @default(uuid())
+  automationRuleId String
+  contactId        String?
+  status           String         // SUCCESS, FAILED
+  error            String?
+  executedAt       DateTime       @default(now())
+
+  automationRule   AutomationRule @relation(fields: [automationRuleId], references: [id], onDelete: Cascade)
+
+  @@index([automationRuleId])
+  @@map("automation_executions")
+}
+
+// ==========================================
+// 9. Developer APIs & Outbound Webhooks
+// ==========================================
+
+model ApiKey {
+  id             String       @id @default(uuid())
+  organizationId String
+  name           String
+  keyPrefix      String
+  hashedSecret   String
+  lastUsedAt     DateTime?
+  expiresAt      DateTime?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("api_keys")
+}
+
+model OutboundWebhook {
+  id             String                    @id @default(uuid())
+  organizationId String
+  targetUrl      String
+  secret         String
+  events         String[]                  // e.g., ["message.received", "message.delivered"]
+  isActive       Boolean                   @default(true)
+  createdAt      DateTime                  @default(now())
+
+  organization   Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  deliveries     OutboundWebhookDelivery[]
+
+  @@index([organizationId])
+  @@map("outbound_webhooks")
+}
+
+model OutboundWebhookDelivery {
+  id                String          @id @default(uuid())
+  outboundWebhookId String
+  event             String
+  statusCode        Int
+  responseBody      String?
+  attempt           Int             @default(1)
+  deliveredAt       DateTime        @default(now())
+
+  outboundWebhook   OutboundWebhook @relation(fields: [outboundWebhookId], references: [id], onDelete: Cascade)
+
+  @@index([outboundWebhookId])
+  @@map("outbound_webhook_deliveries")
+}
+
+// ==========================================
+// 10. PostgreSQL-Backed Transactional Outbox / Job Queue
+// ==========================================
+
+enum JobType {
+  SEND_INDIVIDUAL_MESSAGE
+  PROCESS_CAMPAIGN_BATCH
+  PROCESS_WEBHOOK_EVENT
+  SYNC_TEMPLATES
+  RECONCILE_STATUS
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  DEAD_LETTER
+}
+
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  organizationId String
+  type           JobType
+  payload        Json
+  status         JobStatus    @default(PENDING)
+  attempts       Int          @default(0)
+  maxAttempts    Int          @default(5)
+  lastError      String?
+  idempotencyKey String?      @unique
+  scheduledFor   DateTime     @default(now())
+  lockedAt       DateTime?
+  lockedBy       String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledFor])
+  @@index([organizationId])
+  @@map("outbox_events")
+}
+
+// ==========================================
+// 11. System & Audit Logs
+// ==========================================
+
+model AuditLog {
+  id             String        @id @default(uuid())
+  organizationId String?
+  userId         String?
+  action         String
+  resource       String
+  resourceId     String?
+  ipAddress      String?
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model SystemSetting {
+  key         String   @id
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_settings")
+}

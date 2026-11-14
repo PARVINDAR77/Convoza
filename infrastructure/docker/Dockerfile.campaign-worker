@@ -1,0 +1,44 @@
+# ==========================================
+# CONVOZA Campaign Worker Dockerfile
+# ==========================================
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+RUN apk add --no-cache libc6-compat openssl
+
+COPY package*.json ./
+COPY packages/ ./packages/
+COPY apps/api/prisma ./apps/api/prisma
+COPY workers/campaign-worker/ ./workers/campaign-worker/
+
+RUN npm install
+RUN npm run build --workspace=@convoza/shared-types
+RUN npm run build --workspace=@convoza/configuration
+RUN npm run build --workspace=@convoza/validation
+
+WORKDIR /app/apps/api
+RUN npx prisma generate
+
+WORKDIR /app/workers/campaign-worker
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+RUN apk add --no-cache openssl
+
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 worker
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/workers/campaign-worker/dist ./workers/campaign-worker/dist
+COPY --from=builder /app/workers/campaign-worker/package.json ./workers/campaign-worker/package.json
+
+USER worker
+
+CMD ["node", "workers/campaign-worker/dist/index.js"]

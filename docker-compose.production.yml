@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  # Edge Nginx Reverse Proxy & Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: convoza_prod_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+      - website
+      - dashboard
+      - admin
+    networks:
+      - convoza_public_net
+      - convoza_internal_net
+
+  # PostgreSQL Database (Internal Network Only)
+  postgres:
+    image: postgres:16-alpine
+    container_name: convoza_prod_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-convoza_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-convoza_secure_password_2026}
+      POSTGRES_DB: ${DB_NAME:-convoza_db}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U convoza_user -d convoza_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - convoza_internal_net
+
+  # NestJS API Replicas
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.api
+    restart: always
+    deploy:
+      replicas: 2
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: "postgresql://${DB_USER:-convoza_user}:${DB_PASSWORD:-convoza_secure_password_2026}@postgres:5432/${DB_NAME:-convoza_db}?schema=public&connection_limit=30"
+      JWT_SECRET: ${JWT_SECRET}
+      CREDENTIALS_ENCRYPTION_KEY: ${CREDENTIALS_ENCRYPTION_KEY}
+      META_APP_ID: ${META_APP_ID}
+      META_APP_SECRET: ${META_APP_SECRET}
+      META_WEBHOOK_VERIFY_TOKEN: ${META_WEBHOOK_VERIFY_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - convoza_internal_net
+
+  # Asynchronous Message Worker
+  message-worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.message-worker
+    restart: always
+    deploy:
+      replicas: 2
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://${DB_USER:-convoza_user}:${DB_PASSWORD:-convoza_secure_password_2026}@postgres:5432/${DB_NAME:-convoza_db}?schema=public&connection_limit=15"
+      CREDENTIALS_ENCRYPTION_KEY: ${CREDENTIALS_ENCRYPTION_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - convoza_internal_net
+
+  # Bulk Campaign Worker
+  campaign-worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.campaign-worker
+    restart: always
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://${DB_USER:-convoza_user}:${DB_PASSWORD:-convoza_secure_password_2026}@postgres:5432/${DB_NAME:-convoza_db}?schema=public&connection_limit=15"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - convoza_internal_net
+
+  # Webhook Worker
+  webhook-worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.webhook-worker
+    restart: always
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://${DB_USER:-convoza_user}:${DB_PASSWORD:-convoza_secure_password_2026}@postgres:5432/${DB_NAME:-convoza_db}?schema=public&connection_limit=15"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - convoza_internal_net
+
+  website:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.website
+    restart: always
+    networks:
+      - convoza_internal_net
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.dashboard
+    restart: always
+    networks:
+      - convoza_internal_net
+
+  admin:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.admin
+    restart: always
+    networks:
+      - convoza_internal_net
+
+volumes:
+  postgres_prod_data:
+    driver: local
+
+networks:
+  convoza_public_net:
+    driver: bridge
+  convoza_internal_net:
+    internal: true

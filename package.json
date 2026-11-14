@@ -1,0 +1,33 @@
+{
+  "name": "convoza-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "workers/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev:api": "npm run start:dev --workspace=@convoza/api",
+    "dev:dashboard": "npm run dev --workspace=@convoza/dashboard",
+    "dev:website": "npm run dev --workspace=@convoza/website",
+    "dev:admin": "npm run dev --workspace=@convoza/admin",
+    "dev:message-worker": "npm run dev --workspace=@convoza/message-worker",
+    "dev:campaign-worker": "npm run dev --workspace=@convoza/campaign-worker",
+    "dev:webhook-worker": "npm run dev --workspace=@convoza/webhook-worker",
+    "prisma:generate": "npm run prisma:generate --workspace=@convoza/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace=@convoza/api",
+    "prisma:seed": "npm run prisma:seed --workspace=@convoza/api",
+    "test:unit": "jest tests/unit",
+    "test:k6": "k6 run tests/k6/load-test.js"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.12",
+    "concurrently": "^8.2.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.4.5"
+  }
+}

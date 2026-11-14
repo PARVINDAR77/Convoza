@@ -1,0 +1,43 @@
+# ==========================================
+# CONVOZA Webhook Worker Dockerfile
+# ==========================================
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+RUN apk add --no-cache libc6-compat openssl
+
+COPY package*.json ./
+COPY packages/ ./packages/
+COPY apps/api/prisma ./apps/api/prisma
+COPY workers/webhook-worker/ ./workers/webhook-worker/
+
+RUN npm install
+RUN npm run build --workspace=@convoza/shared-types
+RUN npm run build --workspace=@convoza/configuration
+
+WORKDIR /app/apps/api
+RUN npx prisma generate
+
+WORKDIR /app/workers/webhook-worker
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+RUN apk add --no-cache openssl
+
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 worker
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/workers/webhook-worker/dist ./workers/webhook-worker/dist
+COPY --from=builder /app/workers/webhook-worker/package.json ./workers/webhook-worker/package.json
+
+USER worker
+
+CMD ["node", "workers/webhook-worker/dist/index.js"]
