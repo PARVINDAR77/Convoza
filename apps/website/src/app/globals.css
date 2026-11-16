@@ -1,3 +1,7 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,7 +15,10 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: #f8fafc;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
@@ -30,7 +37,7 @@ body {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(8px) rotate(-0.5deg);
+    transform: translateY(6px) rotate(-0.5deg);
   }
 }
 
@@ -63,6 +70,28 @@ body {
   }
 }
 
+@keyframes message-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse-tap {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    transform: scale(0.97);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.1);
+  }
+}
+
 .animate-float-slow {
   animation: float-slow 6s ease-in-out infinite;
 }
@@ -79,18 +108,154 @@ body {
   animation: shimmer-sweep 2.5s infinite;
 }
 
+.animate-message {
+  animation: message-appear 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-tap {
+  animation: pulse-tap 1s ease-in-out infinite;
+}
+
 .typing-dot-1 {
-  animation: typing-bounce 1.4s infinite ease-in-out;
+  animation: typing-bounce 1.3s infinite ease-in-out;
 }
 .typing-dot-2 {
-  animation: typing-bounce 1.4s infinite ease-in-out 0.2s;
+  animation: typing-bounce 1.3s infinite ease-in-out 0.2s;
 }
 .typing-dot-3 {
-  animation: typing-bounce 1.4s infinite ease-in-out 0.4s;
+  animation: typing-bounce 1.3s infinite ease-in-out 0.4s;
+}
+
+/* Marquee Left-to-Right Animation */
+@keyframes marquee-ltr {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee-ltr {
+  display: flex;
+  width: max-content;
+  animation: marquee-ltr 42s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-ltr:hover {
+  animation-play-state: paused;
 }
 
 /* Subtle dot background */
 .bg-dot-pattern {
   background-image: radial-gradient(rgba(16, 185, 129, 0.12) 1px, transparent 1px);
   background-size: 24px 24px;
+}
+
+/* Center Box Energetic Shake Animation */
+@keyframes box-shake {
+  0% { transform: scale(1.04) translate3d(0, 0, 0) rotate(0deg); }
+  12% { transform: scale(1.05) translate3d(-10px, 0, 0) rotate(-2deg); }
+  24% { transform: scale(1.05) translate3d(9px, 0, 0) rotate(2deg); }
+  36% { transform: scale(1.04) translate3d(-8px, 0, 0) rotate(-1.5deg); }
+  48% { transform: scale(1.04) translate3d(7px, 0, 0) rotate(1.5deg); }
+  60% { transform: scale(1.03) translate3d(-5px, 0, 0) rotate(-1deg); }
+  72% { transform: scale(1.02) translate3d(4px, 0, 0) rotate(0.8deg); }
+  84% { transform: scale(1.01) translate3d(-2px, 0, 0) rotate(-0.4deg); }
+  92% { transform: scale(1.005) translate3d(1px, 0, 0) rotate(0.2deg); }
+  100% { transform: scale(1) translate3d(0, 0, 0) rotate(0deg); }
+}
+
+.animate-box-shake {
+  animation: box-shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  will-change: transform;
+}
+
+/* Staggered Box Pop-In Animation */
+@keyframes card-pop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(32px) scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-card-pop {
+  animation: card-pop-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Glow Pulse for WhatsApp Solution Card */
+@keyframes box-glow-emerald {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7), 0 10px 40px rgba(37, 211, 102, 0.15);
+    transform: scale(1);
+    border-color: #25D366;
+  }
+  35% {
+    box-shadow: 0 0 0 8px rgba(37, 211, 102, 0.35), 0 0 60px rgba(37, 211, 102, 0.5);
+    transform: scale(1.018);
+    border-color: #10B981;
+  }
+  70% {
+    box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.2), 0 0 35px rgba(37, 211, 102, 0.25);
+    transform: scale(1.008);
+  }
+  100% {
+    box-shadow: 0 10px 40px rgba(37, 211, 102, 0.15);
+    transform: scale(1);
+    border-color: #25D366;
+  }
+}
+
+.animate-glow-emerald {
+  animation: box-glow-emerald 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, box-shadow;
+}
+
+/* Glow Pulse for Problem Card */
+@keyframes box-glow-rose {
+  0% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.6), 0 4px 24px rgba(244, 63, 94, 0.08);
+    transform: scale(1);
+    border-color: #F43F5E;
+  }
+  35% {
+    box-shadow: 0 0 0 7px rgba(244, 63, 94, 0.3), 0 0 45px rgba(244, 63, 94, 0.38);
+    transform: scale(1.015);
+    border-color: #E11D48;
+  }
+  70% {
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15), 0 0 25px rgba(244, 63, 94, 0.18);
+    transform: scale(1.006);
+  }
+  100% {
+    box-shadow: 0 4px 24px rgba(244, 63, 94, 0.08);
+    transform: scale(1);
+    border-color: #FECDD3;
+  }
+}
+
+.animate-glow-rose {
+  animation: box-glow-rose 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, box-shadow;
+}
+
+/* Number Pop Animation */
+@keyframes number-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.animate-number-pop {
+  animation: number-pop 0.45s ease-out both;
 }
