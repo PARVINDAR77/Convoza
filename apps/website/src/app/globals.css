@@ -259,3 +259,16 @@ body {
 .animate-number-pop {
   animation: number-pop 0.45s ease-out both;
 }
+
+
+/* Universal scrollbar hide utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}

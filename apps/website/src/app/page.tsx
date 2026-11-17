@@ -57,6 +57,26 @@ export default function HomePage() {
   const [glowKey, setGlowKey] = useState<number>(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  const handlePricingTilt = (e: React.MouseEvent<HTMLDivElement>, baseTiltY: number = 0) => {
+    if (typeof window === 'undefined' || window.innerWidth < 1024) return;
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotX = ((y - centerY) / centerY) * -6.5;
+    const rotY = ((x - centerX) / centerX) * 6.5 + baseTiltY;
+    card.style.transform = `perspective(1000px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateY(-14px) scale3d(1.03, 1.03, 1.03)`;
+  };
+
+  const handlePricingReset = (e: React.MouseEvent<HTMLDivElement>, resetTransform: string) => {
+    if (typeof window === 'undefined' || window.innerWidth < 1024) return;
+    const card = e.currentTarget;
+    card.style.transform = resetTransform;
+  };
+
+
   const handleSelectAudience = (size: number) => {
     setAudienceSize(size);
     setGlowKey(prev => prev + 1);
@@ -1529,326 +1549,389 @@ export default function HomePage() {
       {/* ========================================================= */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative overflow-hidden">
         
-        {/* Subtle Ambient Glow behind Pricing Hero */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-emerald-500/8 rounded-full blur-3xl pointer-events-none" />
+        {/* Subtle Ambient Radial Glow behind Pricing Hero */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-gradient-to-tr from-emerald-500/10 via-teal-400/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
         <div className="text-center max-w-3xl mx-auto relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold mb-4 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 text-xs font-semibold mb-4 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-[#128C7E] fill-[#128C7E]" />
-            <span className="uppercase tracking-[0.16em] text-[10.5px] font-bold">Transparent Tier-4 Pricing</span>
-            <span className="text-emerald-300">•</span>
-            <span className="text-emerald-700 font-medium">Meta Cloud API</span>
+            <span className="uppercase tracking-[0.16em] text-[10.5px] font-extrabold">Transparent Wholesale Pricing</span>
+            <span className="text-emerald-400">•</span>
+            <span className="text-emerald-700 font-semibold">Official Meta Cloud API</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
             Simple, Predictable Plans for <br className="hidden sm:inline" />
             <span className="bg-gradient-to-r from-emerald-600 via-[#128C7E] to-teal-600 bg-clip-text text-transparent">
-              Every Growth Stage
+              Every Stage of Growth
             </span>
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Zero message markup. You pay official Meta conversation fees directly at cost with full transparent reporting.
+            Zero message markup or hidden fees. Connect your official WhatsApp numbers with full isolation, high-speed outbox queues, and automated campaigns.
           </p>
 
           {/* Premium Segmented Billing Switcher */}
-          <div className="mt-8 inline-flex items-center p-1.5 rounded-2xl bg-slate-100/90 border border-slate-200/90 shadow-inner">
+          <div className="mt-8 inline-flex items-center p-1.5 rounded-full bg-slate-100/90 border border-slate-200/90 shadow-inner">
             <button
+              type="button"
               onClick={() => setBillingPeriod('monthly')}
-              className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 billingPeriod === 'monthly'
-                  ? 'bg-white text-slate-900 shadow-md shadow-slate-200'
+                  ? 'bg-white text-slate-950 shadow-md shadow-slate-200'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Monthly Billing
             </button>
             <button
+              type="button"
               onClick={() => setBillingPeriod('yearly')}
-              className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              className={`px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
                 billingPeriod === 'yearly'
-                  ? 'bg-[#25D366] text-slate-950 font-black shadow-md shadow-emerald-500/25'
+                  ? 'bg-gradient-to-r from-emerald-500 to-[#128C7E] text-white shadow-md shadow-emerald-500/25'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <span>Annual Billing</span>
-              <span className={`text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full ${
+              <span className={`text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1.5 transition-colors ${
                 billingPeriod === 'yearly'
-                  ? 'bg-slate-950 text-white'
+                  ? 'bg-slate-950/80 text-emerald-300 border border-emerald-400/30'
                   : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
               }`}>
-                Save 20%
+                <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse" />
+                <span>Save 20%</span>
               </span>
             </button>
           </div>
         </div>
 
-        {/* 3 Tier Pricing Cards - Compact, Balanced & Ergonomically Rounded */}
-        <div className="mt-12 max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch relative z-10">
+        {/* 3 Tier Pricing Cards - Dynamic 3D Tilt & Round Crescent Arc Layout */}
+        <div className="mt-16 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-7 items-stretch relative z-10 pt-6 pb-6 [perspective:1400px]">
           
-          {/* 1. Starter Plan */}
-          <div className="rounded-[30px] border border-slate-200/90 bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between group">
+          {/* 1. Starter Plan (Tilted Inward Left Arc) */}
+          <div
+            onMouseMove={(e) => handlePricingTilt(e, -2)}
+            onMouseLeave={(e) => handlePricingReset(e, 'perspective(1000px) rotate(-2deg) translateY(14px)')}
+            className="rounded-[40px] border border-slate-200/90 bg-white/95 backdrop-blur-sm p-7 sm:p-8 shadow-[0_12px_36px_rgba(0,0,0,0.05)] hover:shadow-[0_24px_60px_rgba(16,185,129,0.12)] hover:border-emerald-300/80 transition-all duration-500 ease-out flex flex-col justify-between group relative lg:[transform:perspective(1000px)_rotate(-2deg)_translateY(14px)] lg:origin-bottom-right cursor-pointer"
+          >
             <div>
               {/* Header */}
               <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-[#128C7E] flex items-center justify-center shadow-2xs">
-                  <Zap className="w-5 h-5 fill-[#128C7E]/20" />
+                <div className="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-[#128C7E] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                  <Zap className="w-5 h-5 fill-[#128C7E]/20 text-[#128C7E]" />
                 </div>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80">
                   Starter Tier
                 </span>
               </div>
 
-              <h3 className="mt-4 text-xl font-black text-slate-900 tracking-tight">Starter</h3>
-              <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+              <h3 className="mt-5 text-2xl font-black text-slate-900 tracking-tight">Starter</h3>
+              <p className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed min-h-[38px]">
                 Essential WhatsApp marketing for small businesses and budding stores.
               </p>
 
               {/* Price Pill */}
-              <div className="mt-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70">
+              <div className="mt-5 p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 group-hover:border-slate-300 transition-colors">
                 <div className="flex items-baseline gap-1.5">
                   {billingPeriod === 'yearly' && (
                     <span className="text-base text-slate-400 line-through font-semibold font-mono">
                       ₹2,499
                     </span>
                   )}
-                  <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-sans">
+                  <span className="text-4xl sm:text-[42px] font-black text-slate-900 tracking-tight font-sans leading-none">
                     {billingPeriod === 'monthly' ? '₹2,499' : '₹1,999'}
                   </span>
-                  <span className="text-xs font-bold text-slate-500">/ mo</span>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">/ mo</span>
                 </div>
-                <div className="mt-0.5 text-[10.5px] font-semibold text-slate-500">
-                  {billingPeriod === 'yearly' ? '⚡ Billed annually (₹23,988/yr)' : 'Billed monthly • Cancel anytime'}
+                <div className="mt-2 text-[11px] font-medium text-slate-500 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span>{billingPeriod === 'yearly' ? '⚡ Billed annually (₹23,988/yr) • 2 Months Free' : 'Billed monthly • Cancel anytime'}</span>
                 </div>
               </div>
 
               {/* Feature Checklist */}
-              <div className="mt-5 space-y-2.5 text-xs text-slate-700">
-                <div className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400 pb-1 border-b border-slate-100">
-                  Included Capabilities:
+              <div className="mt-6 space-y-3 text-xs sm:text-[13px] text-slate-700">
+                <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 pb-2 border-b border-slate-100 flex items-center justify-between">
+                  <span>Included Capabilities:</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span><strong className="text-slate-900 font-bold">1 Official Phone Number</strong> (Meta Cloud)</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong className="text-slate-900 font-bold">10,000 Messages</strong> / month platform allowance</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span><strong className="text-slate-900 font-bold">10,000 Messages</strong> / month allowance</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong className="text-slate-900 font-bold">2 Team Agent Seats</strong> for shared live chat</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span><strong className="text-slate-900 font-bold">2 Team Agent Seats</strong> for live chat</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span>Meta Embedded Signup (Live in 5 Mins)</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span>Standard Outbox Worker & Anti-Ban Rate Limit</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span>Basic Keyword Auto-Reply Triggers</span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-slate-100">
+            <div className="mt-8 pt-5 border-t border-slate-100">
               <Link
                 href="/register"
-                className="w-full py-2.5 sm:py-3 px-4 rounded-2xl border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 font-bold text-xs sm:text-sm text-slate-800 text-center flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer group-hover:border-emerald-500"
+                className="w-full py-4 px-6 rounded-full border-2 border-slate-200 hover:border-emerald-500 bg-white hover:bg-emerald-50/40 font-bold text-sm text-slate-800 hover:text-emerald-950 text-center flex items-center justify-center gap-2 shadow-xs hover:shadow-md transition-all duration-200 group/btn cursor-pointer"
               >
                 <span>Start 14-Day Free Trial</span>
-                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover/btn:text-emerald-600 group-hover/btn:translate-x-1 transition-all" />
               </Link>
-              <div className="mt-1.5 text-center text-[10px] text-slate-400 font-medium">
+              <div className="mt-2 text-center text-[11px] text-slate-400 font-medium">
                 No credit card required • Instant setup
               </div>
             </div>
           </div>
 
-          {/* 2. Growth Plan (Most Popular / High Value Banner) */}
-          <div className="rounded-[30px] border-2 border-[#25D366] bg-white p-6 shadow-[0_16px_50px_rgba(37,211,102,0.16)] flex flex-col justify-between relative lg:-translate-y-2 z-20 group">
-            
+          {/* 2. Growth Plan (Elevated Apex Center Card) */}
+          <div
+            onMouseMove={(e) => handlePricingTilt(e, 0)}
+            onMouseLeave={(e) => handlePricingReset(e, 'perspective(1000px) translateY(-24px) scale(1.04)')}
+            className="relative rounded-[40px] bg-gradient-to-b from-white via-white to-emerald-50/50 p-7 sm:p-8 border-2 border-emerald-500 shadow-[0_24px_60px_rgba(37,211,102,0.22)] hover:shadow-[0_36px_85px_rgba(37,211,102,0.32)] transition-all duration-500 ease-out flex flex-col justify-between z-20 group lg:[transform:perspective(1000px)_translateY(-24px)_scale(1.04)] cursor-pointer"
+          >
+            {/* Ambient Background Glow Effect */}
+            <div className="absolute -inset-1.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-[#25D366] rounded-[44px] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 pointer-events-none" />
+
             {/* Top Floating Badge */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-emerald-600 via-[#128C7E] to-teal-600 text-white font-black text-[10px] uppercase tracking-wider shadow-md shadow-emerald-600/30 flex items-center gap-1.5 whitespace-nowrap">
-              <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#021812] via-[#075E54] to-[#021812] border border-emerald-400/40 text-emerald-300 font-extrabold text-[11px] uppercase tracking-wider shadow-lg shadow-emerald-950/20 flex items-center gap-2 whitespace-nowrap z-30">
+              <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse" />
+              <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
               <span>Most Popular • High ROI</span>
             </div>
 
-            <div>
+            <div className="relative z-10">
               {/* Header */}
               <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-300 text-[#128C7E] flex items-center justify-center shadow-2xs">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 border border-emerald-300 text-[#128C7E] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
                   <Flame className="w-5 h-5 text-[#128C7E] fill-emerald-500/30" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
+                <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
                   Best Value
                 </span>
               </div>
 
-              <h3 className="mt-4 text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <h3 className="mt-5 text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
                 <span>Growth</span>
-                <span className="text-[10.5px] font-bold text-emerald-700 bg-emerald-100/90 px-2 py-0.2 rounded-full">
+                <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
                   Recommended
                 </span>
               </h3>
-              <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+              <p className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed min-h-[38px]">
                 For fast-scaling e-commerce brands, D2C merchants, and growing teams.
               </p>
 
               {/* Price Pill */}
-              <div className="mt-4 p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200">
+              <div className="mt-5 p-4 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-teal-50/60 to-emerald-100/50 border border-emerald-300/80 shadow-xs">
                 <div className="flex items-baseline gap-1.5">
                   {billingPeriod === 'yearly' && (
                     <span className="text-base text-slate-400 line-through font-semibold font-mono">
                       ₹5,999
                     </span>
                   )}
-                  <span className="text-3xl sm:text-4xl font-black text-[#128C7E] tracking-tight font-sans">
+                  <span className="text-4xl sm:text-[42px] font-black text-[#075E54] tracking-tight font-sans leading-none">
                     {billingPeriod === 'monthly' ? '₹5,999' : '₹4,799'}
                   </span>
-                  <span className="text-xs font-bold text-slate-600">/ mo</span>
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">/ mo</span>
                 </div>
-                <div className="mt-0.5 text-[10.5px] font-bold text-emerald-800 flex items-center gap-1">
-                  <span>✨</span>
-                  <span>{billingPeriod === 'yearly' ? 'Save ₹14,400/yr • 2 months free' : 'Instant Meta Cloud activation'}</span>
+                <div className="mt-2 text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] shrink-0" />
+                  <span>{billingPeriod === 'yearly' ? 'Save ₹14,400/yr • 2 Months Free' : 'Instant Meta Cloud activation'}</span>
                 </div>
               </div>
 
               {/* Feature Checklist */}
-              <div className="mt-5 space-y-2.5 text-xs text-slate-700">
-                <div className="text-[10.5px] font-black uppercase tracking-wider text-emerald-800 pb-1 border-b border-emerald-100 flex items-center justify-between">
+              <div className="mt-6 space-y-3 text-xs sm:text-[13px] text-slate-700">
+                <div className="text-[11px] font-black uppercase tracking-wider text-emerald-800 pb-2 border-b border-emerald-100 flex items-center justify-between">
                   <span>Everything in Starter, plus:</span>
-                  <span className="text-[9.5px] text-emerald-600 font-bold">3X Scale</span>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-md border border-emerald-200">3X Scale</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#128C7E] shrink-0 mt-0.5 stroke-[2.5]" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/30 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span><strong className="text-slate-900 font-bold">3 Official WhatsApp Numbers</strong> (Multi-Brand)</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#128C7E] shrink-0 mt-0.5 stroke-[2.5]" />
-                  <span><strong className="text-slate-900 font-bold">50,000 Messages</strong> / month platform allowance</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/30 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span><strong className="text-slate-900 font-bold">50,000 Messages</strong> / month allowance</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#128C7E] shrink-0 mt-0.5 stroke-[2.5]" />
-                  <span><strong className="text-slate-900 font-bold">10 Team Agent Seats</strong> with 3-Column Shared Inbox</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/30 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span><strong className="text-slate-900 font-bold">10 Team Seats</strong> with 3-Column Shared Inbox</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#128C7E] shrink-0 mt-0.5 stroke-[2.5]" />
-                  <span><strong className="text-slate-900 font-bold">Priority Worker Dispatch</strong> (50 msg/sec throughput)</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/30 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span><strong className="text-slate-900 font-bold">Priority Worker Dispatch</strong> (50 msg/sec)</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#128C7E] shrink-0 mt-0.5 stroke-[2.5]" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/30 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span>Automated Workflow Engine & Business Hours Bot</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#128C7E] shrink-0 mt-0.5 stroke-[2.5]" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/30 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span>CSV Bulk Campaigns with Dynamic Token Replacement</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#128C7E] shrink-0 mt-0.5 stroke-[2.5]" />
-                  <span>24-Hour Conversation Window Countdown & Tags</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/30 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span>24-Hour Window Countdown & Smart Tags</span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-emerald-100">
+            <div className="mt-8 pt-5 border-t border-emerald-100 relative z-10">
               <Link
                 href="/register"
-                className="w-full py-2.5 sm:py-3 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] via-emerald-500 to-[#128C7E] hover:from-emerald-500 hover:to-teal-600 text-slate-950 font-black text-xs sm:text-sm text-center flex items-center justify-center gap-2 shadow-md shadow-emerald-500/25 transform hover:-translate-y-0.5 transition-all cursor-pointer"
+                className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#25D366] via-emerald-500 to-[#128C7E] hover:from-emerald-400 hover:to-teal-600 text-slate-950 font-black text-sm text-center flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/35 hover:shadow-emerald-500/50 transform hover:scale-[1.02] active:scale-100 transition-all cursor-pointer group/cta"
               >
                 <span>Start 14-Day Free Trial</span>
-                <ArrowRight className="w-4 h-4 stroke-[3]" />
+                <ArrowRight className="w-4 h-4 stroke-[3] group-hover/cta:translate-x-1 transition-transform" />
               </Link>
-              <div className="mt-1.5 text-center text-[10px] text-emerald-800 font-semibold">
+              <div className="mt-2 text-center text-[11px] text-emerald-800 font-bold">
                 ✓ Full access to all Growth features • No credit card
               </div>
             </div>
           </div>
 
-          {/* 3. Enterprise Plan */}
-          <div className="rounded-[30px] border border-slate-200/90 bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-lg hover:border-indigo-300 transition-all duration-300 flex flex-col justify-between group">
-            <div>
+          {/* 3. Enterprise Plan (Tilted Inward Right Arc) */}
+          <div
+            onMouseMove={(e) => handlePricingTilt(e, 2)}
+            onMouseLeave={(e) => handlePricingReset(e, 'perspective(1000px) rotate(2deg) translateY(14px)')}
+            className="rounded-[40px] bg-gradient-to-b from-[#0b1b17] via-[#091f1a] to-[#04120e] text-white p-7 sm:p-8 border border-emerald-500/30 shadow-[0_12px_40px_rgba(2,24,18,0.3)] hover:shadow-[0_30px_70px_rgba(2,24,18,0.5)] hover:border-emerald-500/50 transition-all duration-500 ease-out flex flex-col justify-between group relative overflow-hidden lg:[transform:perspective(1000px)_rotate(2deg)_translateY(14px)] lg:origin-bottom-left cursor-pointer"
+          >
+            {/* Subtle Top Ambient Glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10">
               {/* Header */}
               <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shadow-2xs">
+                <div className="w-11 h-11 rounded-2xl bg-white/10 border border-white/15 text-emerald-400 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
                   Enterprise Tier
                 </span>
               </div>
 
-              <h3 className="mt-4 text-xl font-black text-slate-900 tracking-tight">Enterprise</h3>
-              <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+              <h3 className="mt-5 text-2xl font-black text-white tracking-tight">Enterprise</h3>
+              <p className="mt-1.5 text-xs sm:text-sm text-slate-300 leading-relaxed min-h-[38px]">
                 For high-volume retail leaders and organizations needing dedicated scale.
               </p>
 
               {/* Price Pill */}
-              <div className="mt-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70">
+              <div className="mt-5 p-4 rounded-2xl bg-white/[0.06] border border-white/10 backdrop-blur-md">
                 <div className="flex items-baseline gap-1.5">
                   {billingPeriod === 'yearly' && (
                     <span className="text-base text-slate-400 line-through font-semibold font-mono">
                       ₹14,999
                     </span>
                   )}
-                  <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-sans">
+                  <span className="text-4xl sm:text-[42px] font-black text-white tracking-tight font-sans leading-none">
                     {billingPeriod === 'monthly' ? '₹14,999' : '₹11,999'}
                   </span>
-                  <span className="text-xs font-bold text-slate-500">/ mo</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">/ mo</span>
                 </div>
-                <div className="mt-0.5 text-[10.5px] font-semibold text-slate-500">
-                  {billingPeriod === 'yearly' ? '⚡ Billed annually (₹143,988/yr)' : 'Custom high-throughput billing available'}
+                <div className="mt-2 text-[11px] font-medium text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                  <span>{billingPeriod === 'yearly' ? '⚡ Billed annually (₹143,988/yr)' : 'Custom high-throughput billing available'}</span>
                 </div>
               </div>
 
               {/* Feature Checklist */}
-              <div className="mt-5 space-y-2.5 text-xs text-slate-700">
-                <div className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400 pb-1 border-b border-slate-100">
-                  Dedicated Scale & Support:
+              <div className="mt-6 space-y-3 text-xs sm:text-[13px] text-slate-200">
+                <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 pb-2 border-b border-white/10 flex items-center justify-between">
+                  <span>Dedicated Scale & Support:</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                  <span><strong className="text-slate-900 font-bold">Unlimited Phone Numbers</strong> & Sub-Accounts</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/40 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span><strong className="text-white font-bold">Unlimited Phone Numbers</strong> & Sub-Accounts</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                  <span><strong className="text-slate-900 font-bold">Unlimited Messages</strong> (Meta conversation at cost)</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/40 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span><strong className="text-white font-bold">Unlimited Messages</strong> (Meta conversation at cost)</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                  <span><strong className="text-slate-900 font-bold">Unlimited Team Agent Seats</strong> with custom roles</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/40 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span><strong className="text-white font-bold">Unlimited Team Seats</strong> with custom roles</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                  <span><strong className="text-slate-900 font-bold">Dedicated Worker Cluster</strong> (250+ msg/sec outbox)</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/40 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span><strong className="text-white font-bold">Dedicated Worker Cluster</strong> (250+ msg/sec outbox)</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/40 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span>99.99% Financial-Grade Uptime SLA Guarantee</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/40 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span>Custom Webhooks, ERP & CRM Integrations</span>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/40 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
                   <span>Dedicated TAM & VIP WhatsApp Support</span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-slate-100">
+            <div className="mt-8 pt-5 border-t border-white/10 relative z-10">
               <Link
                 href="/contact"
-                className="w-full py-2.5 sm:py-3 px-4 rounded-2xl border border-slate-900 bg-slate-900 hover:bg-slate-800 font-bold text-xs sm:text-sm text-white text-center flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer transform hover:-translate-y-0.5"
+                className="w-full py-4 px-6 rounded-full bg-white hover:bg-slate-100 text-slate-950 font-black text-sm text-center flex items-center justify-center gap-2 shadow-lg shadow-black/20 hover:shadow-xl transition-all cursor-pointer group/btn"
               >
                 <span>Contact Enterprise Sales</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 text-slate-950 group-hover/btn:translate-x-1 transition-transform" />
               </Link>
-              <div className="mt-1.5 text-center text-[10px] text-slate-400 font-medium">
+              <div className="mt-2 text-center text-[11px] text-slate-400 font-medium">
                 Custom contracts • Invoicing & PO support
               </div>
             </div>
@@ -1856,31 +1939,50 @@ export default function HomePage() {
 
         </div>
 
-        {/* Value Trust Guarantees Bar Below Pricing */}
-        <div className="mt-14 max-w-5xl mx-auto rounded-2xl bg-slate-50 border border-slate-200/90 p-5 shadow-xs">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-800">
-              <span className="text-base">🛡️</span>
-              <span>Official Meta Tech Partner</span>
+        {/* High-Trust Value & Guarantees Bar Below Pricing */}
+        <div className="mt-16 max-w-6xl mx-auto rounded-3xl bg-white/80 backdrop-blur-md border border-slate-200/90 p-6 sm:p-7 shadow-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900">Official Meta Tech Partner</h4>
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">100% compliant with zero risk of bans</p>
+              </div>
             </div>
-            <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-800">
-              <span className="text-base">💰</span>
-              <span>Zero Message Markup</span>
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
+                <Zap className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900">Zero Message Markup</h4>
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Official Meta conversation rates at cost</p>
+              </div>
             </div>
-            <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-800">
-              <span className="text-base">⚡</span>
-              <span>Instant 5-Min Setup</span>
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900">5-Minute Embedded Setup</h4>
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Go live instantly with Facebook Login</p>
+              </div>
             </div>
-            <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-800">
-              <span className="text-base">🔄</span>
-              <span>Cancel Anytime in 1 Click</span>
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
+                <RotateCcw className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900">Cancel Anytime in 1-Click</h4>
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">No long-term contracts or lock-in</p>
+              </div>
             </div>
           </div>
         </div>
 
       </section>
 
-      {/* ========================================================= */}
       {/* FREQUENTLY ASKED QUESTIONS SECTION                       */}
       {/* ========================================================= */}
       <section className="py-24 bg-gradient-to-b from-white via-slate-50/60 to-white border-t border-slate-200/80 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -1914,33 +2016,39 @@ export default function HomePage() {
               return (
                 <div
                   key={i}
-                  className={`rounded-2xl transition-all duration-300 border overflow-hidden ${
+                  onMouseEnter={() => setOpenFaq(i)}
+                  className={`group rounded-2xl transition-all duration-300 border overflow-hidden cursor-pointer ${
                     isOpen
-                      ? 'bg-white border-emerald-400 shadow-[0_8px_30px_rgba(37,211,102,0.1)] ring-1 ring-emerald-400/30'
-                      : 'bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-sm'
+                      ? 'bg-white border-emerald-400 shadow-[0_8px_30px_rgba(37,211,102,0.12)] ring-1 ring-emerald-400/30'
+                      : 'bg-white border-slate-200/90 hover:border-emerald-300/80 hover:shadow-sm'
                   }`}
                 >
                   <button
+                    type="button"
                     onClick={() => setOpenFaq(isOpen ? null : i)}
                     className="w-full text-left p-5 sm:p-6 flex items-center justify-between gap-4 cursor-pointer focus:outline-none"
                     aria-expanded={isOpen}
                   >
                     <div className="flex items-center gap-3.5">
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-300 ${
                           isOpen
                             ? 'bg-[#25D366]/15 text-[#128C7E] border border-emerald-200'
-                            : 'bg-slate-100 text-slate-500 border border-slate-200/60'
+                            : 'bg-slate-100 text-slate-500 border border-slate-200/60 group-hover:bg-emerald-50 group-hover:text-emerald-600 group-hover:border-emerald-200/50'
                         }`}
                       >
                         <HelpCircle className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                        <span className={`text-base sm:text-lg font-bold tracking-tight transition-colors duration-200 ${
+                          isOpen ? 'text-slate-900' : 'text-slate-800 group-hover:text-emerald-950'
+                        }`}>
                           {faq.q}
                         </span>
                         {faq.category && (
-                          <span className="hidden sm:inline-block ml-3 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600">
+                          <span className={`hidden sm:inline-block ml-3 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors duration-200 ${
+                            isOpen ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600 group-hover:bg-emerald-50/70 group-hover:text-emerald-700'
+                          }`}>
                             {faq.category}
                           </span>
                         )}
@@ -1948,18 +2056,26 @@ export default function HomePage() {
                     </div>
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
-                        isOpen ? 'bg-emerald-50 text-emerald-700 rotate-180' : 'bg-slate-50 text-slate-400 hover:text-slate-600'
+                        isOpen
+                          ? 'bg-emerald-50 text-emerald-700 rotate-180'
+                          : 'bg-slate-50 text-slate-400 group-hover:text-emerald-600 group-hover:bg-emerald-50/70'
                       }`}
                     >
                       <ChevronDown className="w-4 h-4 transition-transform duration-300" />
                     </div>
                   </button>
 
-                  {isOpen && (
-                    <div className="px-5 sm:px-6 pb-6 pt-1 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pl-16 sm:pl-18">
-                      {faq.a}
+                  <div
+                    className={`grid transition-all duration-300 ease-in-out ${
+                      isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="px-5 sm:px-6 pb-6 pt-1 text-sm sm:text-base text-slate-600 leading-relaxed border-t border-slate-100 pl-16 sm:pl-18">
+                        {faq.a}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}

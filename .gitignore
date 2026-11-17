@@ -34,3 +34,6 @@ postgres_data/
 *.dump
 *.sql.gz
 
+
+# Scratch
+scratch/
