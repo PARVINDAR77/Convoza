@@ -2,11 +2,23 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { MessageSquare, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
+import { WhatsAppIcon } from '../../components/WhatsAppIcon';
+import {
+  ArrowRight,
+  AlertCircle,
+  Loader2,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  ShieldCheck
+} from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('alex@apexretail.com');
-  const [password, setPassword] = useState('Demo@Convoza2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,77 +58,154 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+
+      {/* Ambient Radial Background Glows */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-emerald-500/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-md w-full mx-auto relative z-10">
+
+        {/* Top Header & Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-500/20">
-              <MessageSquare className="w-5 h-5" />
+          <Link href="/" className="inline-flex items-center gap-2 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#25D366] via-emerald-600 to-[#128C7E] flex items-center justify-center text-white shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition-transform">
+              <WhatsAppIcon className="w-7 h-7 fill-white" />
             </div>
           </Link>
-          <h2 className="mt-4 text-2xl font-extrabold text-slate-900 tracking-tight">Log in to CONVOZA</h2>
-          <p className="mt-1.5 text-xs text-slate-500">Access your organization and WhatsApp automation</p>
+          <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[10.5px] font-bold uppercase tracking-wider shadow-2xs">
+            <WhatsAppIcon className="w-3.5 h-3.5 fill-[#25D366]" />
+            <span>Official Meta Cloud API</span>
+          </div>
+          <h1 className="mt-3 text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Log in to CONVOZA
+          </h1>
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-600">
+            Access your multi-agent inbox, campaigns & automation engine
+          </p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-700 text-xs">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
+        {/* Card Container */}
+        <div className="bg-white rounded-[28px] border border-slate-200/90 p-7 sm:p-9 shadow-[0_12px_45px_rgba(0,0,0,0.05)] relative">
+
+          {error && (
+            <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2.5 text-rose-700 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span className="font-medium">{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-4">
+
+            {/* Work Email */}
+            <div>
+              <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider mb-1.5">
+                Work Email
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="alex@apexretail.com"
+                  className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm transition-all shadow-2xs font-medium text-slate-800"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
+                  Password
+                </label>
+                <Link
+                  href="/contact"
+                  className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full pl-10 pr-11 py-3 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm transition-all shadow-2xs font-medium text-slate-800"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Remember Me */}
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded-md text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer accent-emerald-600"
+                />
+                <span className="text-xs text-slate-600 font-medium">Remember this device</span>
+              </label>
+              <span className="text-[11px] text-slate-400">30-day session</span>
+            </div>
+
+            {/* Sign In Button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] via-emerald-500 to-[#128C7E] hover:from-emerald-500 hover:to-teal-600 text-slate-950 font-black text-sm shadow-lg shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:pointer-events-none"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Sign In to Dashboard</span>
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                  </>
+                )}
+              </button>
+            </div>
+
+          </form>
+
+          {/* Register Callout */}
+          <div className="mt-5 text-center text-xs text-slate-500">
+            Don't have an organization account?{' '}
+            <Link href="/register" className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+              Start 14-day free trial →
+            </Link>
           </div>
-        )}
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider mb-1">
-              Work Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="alex@apexretail.com"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••••••"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-70"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sign In'} <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
-
-        <div className="mt-6 pt-6 border-t border-slate-100 text-center text-xs text-slate-500">
-          Don't have an account?{' '}
-          <Link href="/register" className="font-semibold text-emerald-600 hover:text-emerald-700">
-            Start 14-day free trial
-          </Link>
         </div>
 
-        <div className="mt-4 p-3 bg-slate-50 rounded-lg text-slate-500 text-[11px] leading-relaxed border border-slate-200">
-          <strong>Demo Credentials:</strong><br />
-          Email: <code className="text-slate-800">alex@apexretail.com</code><br />
-          Password: <code className="text-slate-800">Demo@Convoza2026!</code>
+        {/* Security / Partner Footnote */}
+        <div className="mt-6 flex items-center justify-center gap-2 text-[11px] text-slate-400 font-medium text-center">
+          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <span>Official Meta Cloud API • AES-256 Token Encryption • Row-Level Data Isolation</span>
         </div>
+
       </div>
     </div>
   );
 }
-

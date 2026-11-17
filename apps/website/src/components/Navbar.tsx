@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
+import { WhatsAppIcon } from './WhatsAppIcon';
 import {
   MessageSquare,
   ChevronDown,
@@ -44,7 +45,7 @@ export const Navbar = () => {
       desc: 'Auto-replies, keyword triggers & bot workflows',
       href: '/whatsapp-automation',
       badge: '24/7 AI',
-      icon: <Workflow className="w-4 h-4 text-emerald-400" />,
+      icon: <WhatsAppIcon className="w-4 h-4 fill-emerald-400" />,
       iconBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400',
     },
     {
@@ -80,7 +81,7 @@ export const Navbar = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-emerald-400 flex items-center justify-center text-slate-950 shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform font-bold">
-              <MessageSquare className="w-5 h-5 fill-slate-950 text-slate-950" />
+              <WhatsAppIcon className="w-5 h-5 fill-slate-950" />
             </div>
             <div>
               <span className="text-xl font-extrabold tracking-tight text-white">CONVOZA</span>
@@ -269,6 +270,13 @@ export const Navbar = () => {
             className="block px-3 py-2 text-base font-semibold text-slate-200 hover:bg-emerald-950/60 rounded-lg"
           >
             API Docs
+          </Link>
+          <Link
+            href="/contact"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 text-base font-semibold text-slate-200 hover:bg-emerald-950/60 rounded-lg"
+          >
+            Contact & Support
           </Link>
           <div className="pt-4 border-t border-emerald-900/60 flex flex-col gap-2">
             <Link

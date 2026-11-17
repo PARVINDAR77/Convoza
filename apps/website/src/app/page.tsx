@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { WhatsAppIcon } from '../components/WhatsAppIcon';
 import {
   MessageSquare,
   Zap,
@@ -348,7 +349,7 @@ export default function HomePage() {
             
             {/* Top Eyebrow Badge */}
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold mb-6 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <WhatsAppIcon className="w-4 h-4 fill-[#25D366]" />
               <span>WhatsApp Business Automation Platform</span>
               <span className="text-emerald-500/50">•</span>
               <span className="text-emerald-400 text-xs font-normal">Official Meta Cloud API</span>
@@ -386,10 +387,10 @@ export default function HomePage() {
             {/* Feature Checklist */}
             <div className="mt-10 pt-6 border-t border-emerald-900/50 grid grid-cols-2 gap-3.5 text-xs sm:text-sm text-slate-300 font-medium">
               <div className="flex items-center gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                  <Check className="w-3 h-3 stroke-[3]" />
+                <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                  <WhatsAppIcon className="w-3.5 h-3.5 fill-[#25D366]" />
                 </div>
-                <span>Official WhatsApp API</span>
+                <span className="font-semibold text-white">Official WhatsApp API</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <div className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
@@ -426,8 +427,8 @@ export default function HomePage() {
                 <div className="flex items-center gap-3">
                   {/* Verified Business Avatar */}
                   <div className="relative">
-                    <div className="w-9 h-9 rounded-full bg-emerald-800 border border-emerald-300/40 flex items-center justify-center font-extrabold text-white text-xs shadow-sm">
-                      CS
+                    <div className="w-9 h-9 rounded-full bg-emerald-800 border border-emerald-300/40 flex items-center justify-center text-white shadow-sm">
+                      <WhatsAppIcon className="w-5 h-5 fill-white" />
                     </div>
                     <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#25D366] border-2 border-[#075E54] flex items-center justify-center">
                       <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
@@ -637,7 +638,10 @@ export default function HomePage() {
                   <span className="text-sm font-bold text-slate-900 tracking-tight">Official Business Partner</span>
                   <CheckCircle2 className="w-4 h-4 text-[#0064E0] fill-[#0064E0] text-white" />
                 </div>
-                <span className="text-xs text-slate-500 font-medium">WhatsApp Cloud API Tier-4 Provider</span>
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                  <WhatsAppIcon className="w-3.5 h-3.5 fill-[#25D366] shrink-0" />
+                  <span>WhatsApp Cloud API Tier-4 Provider</span>
+                </div>
               </div>
             </div>
           </div>
@@ -705,7 +709,7 @@ export default function HomePage() {
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200/90 text-slate-700 text-xs font-semibold mb-5 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <WhatsAppIcon className="w-3.5 h-3.5 fill-[#25D366]" />
               <span className="uppercase tracking-[0.16em] text-[10.5px] font-bold text-slate-600">Why WhatsApp?</span>
               <span className="text-slate-300">•</span>
               <span className="text-slate-600 font-medium">Channel ROI Comparison</span>
@@ -907,8 +911,8 @@ export default function HomePage() {
                     <CheckCircle2 className="w-3.5 h-3.5 text-[#128C7E]" />
                     The Solution
                   </span>
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-[#128C7E] flex items-center justify-center shadow-xs">
-                    <MessageCircle className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#25D366]/15 border border-[#25D366]/30 text-[#128C7E] flex items-center justify-center shadow-xs">
+                    <WhatsAppIcon className="w-7 h-7 fill-[#25D366]" />
                   </div>
                 </div>
 
@@ -937,8 +941,8 @@ export default function HomePage() {
                 <div className="mt-5 p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs">
                   <div className="flex items-center justify-between pb-1.5 border-b border-emerald-200/80 text-[10.5px]">
                     <div className="flex items-center gap-1.5 font-bold text-slate-900">
-                      <div className="w-4 h-4 rounded-full bg-[#25D366] text-white flex items-center justify-center text-[9px] font-bold">
-                        ✓
+                      <div className="w-5 h-5 rounded-full bg-[#25D366] text-white flex items-center justify-center p-0.5">
+                        <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
                       </div>
                       <span>Convoza Verified Store</span>
                       <span className="text-[9.5px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-semibold">
@@ -1149,7 +1153,7 @@ export default function HomePage() {
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold mb-4 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <WhatsAppIcon className="w-3.5 h-3.5 fill-[#25D366]" />
               <span className="uppercase tracking-[0.18em] text-[10.5px] font-bold">Enterprise Platform Architecture</span>
               <span className="text-emerald-300">•</span>
               <span className="text-emerald-700 font-medium">Meta Tier-4 Cloud API</span>
@@ -1198,8 +1202,8 @@ export default function HomePage() {
             }`}>
               <div>
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/80 text-emerald-700 flex items-center justify-center group-hover:scale-105 group-hover:bg-[#0064E0] group-hover:text-white transition-all shadow-xs">
-                    <Zap className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/80 text-emerald-700 flex items-center justify-center group-hover:scale-105 group-hover:bg-[#25D366] transition-all shadow-xs">
+                    <WhatsAppIcon className="w-6 h-6 fill-[#25D366] group-hover:fill-white transition-colors" />
                   </div>
                   <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80">
                     Official Meta OAuth
@@ -1554,7 +1558,7 @@ export default function HomePage() {
 
         <div className="text-center max-w-3xl mx-auto relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 text-xs font-semibold mb-4 shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#128C7E] fill-[#128C7E]" />
+            <WhatsAppIcon className="w-3.5 h-3.5 fill-[#25D366]" />
             <span className="uppercase tracking-[0.16em] text-[10.5px] font-extrabold">Transparent Wholesale Pricing</span>
             <span className="text-emerald-400">•</span>
             <span className="text-emerald-700 font-semibold">Official Meta Cloud API</span>
@@ -2085,7 +2089,7 @@ export default function HomePage() {
           <div className="mt-12 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/90 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
             <div className="flex items-center gap-4 text-left">
               <div className="w-12 h-12 rounded-2xl bg-white border border-emerald-200 text-[#128C7E] flex items-center justify-center shadow-xs shrink-0">
-                <MessageCircle className="w-6 h-6" />
+                <WhatsAppIcon className="w-7 h-7 fill-[#25D366]" />
               </div>
               <div>
                 <h4 className="text-base font-bold text-slate-900">Have a custom question or specific use case?</h4>
@@ -2114,6 +2118,9 @@ export default function HomePage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 text-white p-10 sm:p-16 text-center relative overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="w-16 h-16 rounded-3xl bg-[#25D366]/20 border border-[#25D366]/40 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/20">
+            <WhatsAppIcon className="w-9 h-9 fill-[#25D366]" />
+          </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight max-w-3xl mx-auto leading-tight">
             Ready to connect your business to 2+ billion WhatsApp users?
           </h2>

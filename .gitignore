@@ -17,6 +17,7 @@ generated/
 .env.local
 .env.production
 *.env.backup
+.env
 
 # Logs & Debug
 logs
